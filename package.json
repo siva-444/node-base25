@@ -1,0 +1,43 @@
+{
+  "name": "quiz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "exports": "./dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/server.ts",
+    "build": "tsc && tsc-alias",
+    "serve": "node --env-file=.env dist/server.js",
+    "lint": "eslint . --ext .ts",
+    "db:init": "dotenv -e .env -- mysql -h$DB_HOST -u$DB_USER -p$DB_PASSWORD < db/migrations/001_init.sql",
+    "db:seed": "dotenv -e .env -- mysql -h$DB_HOST -u$DB_USER -p$DB_PASSWORD < db/migrations/002_seed.sql",
+    "db:cleanup": "dotenv -e .env -- mysql -h$DB_HOST -u$DB_USER -p$DB_PASSWORD < db/migrations/003_cleanup.sql",
+    "db:reset": "npm run db:cleanup && npm run db:seed",
+    "db:all": "npm run db:init && npm run db:seed"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "eslint-plugin-n": "^17.21.3",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "dotenv-cli": "^10.0.0",
+    "eslint": "^9.35.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.43.0"
+  }
+}

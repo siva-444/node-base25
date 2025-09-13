@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.paths.json",
+  "compilerOptions": {
+    /* Node.js + ESM setup */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    /* Strictness */
+    "strict": true,
+    "verbatimModuleSyntax": true,
+
+    /* Output */
+    "outDir": "dist",
+    "rootDir": "src",
+    
+    /* Interop + compatibility */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+  },
+  "include": ["src"]
+}
