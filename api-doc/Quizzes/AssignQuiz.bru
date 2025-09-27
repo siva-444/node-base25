@@ -1,0 +1,18 @@
+meta {
+  name: AssignQuiz
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{url}}{{module}}/4/assign
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "batch_year":"2016",
+    "department_id":4
+  }
+}

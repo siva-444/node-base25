@@ -1,0 +1,20 @@
+meta {
+  name: UpdateUser
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{url}}{{module}}/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name":"Siva Admin",
+    "email":"siva.admin@gmail.com",
+    "password":"pwd123",
+    "role":"admin"
+  }
+}

@@ -1,0 +1,17 @@
+meta {
+  name: UpdateDepartment
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{url}}{{module}}/14
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name":"M.Sc(Mathematics)"
+  }
+}

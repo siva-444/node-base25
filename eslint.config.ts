@@ -1,90 +1,107 @@
 import js from "@eslint/js";
-import tseslint from "typescript-eslint";
-import importPlugin from "eslint-plugin-import";
-import prettierPlugin from "eslint-plugin-prettier";
-import nPlugin from "eslint-plugin-n";
+import pluginPrettier from "eslint-config-prettier/flat";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
+import { importX } from "eslint-plugin-import-x";
+import globals from "globals";
+import { configs, parser } from "typescript-eslint";
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
-export default [
-  // Base JS rules
+const ignore = { ignores: ["dist", "node_modules"] };
+// Base JavaScript config (recommended rules)
+const baseJs = [
   js.configs.recommended,
-
-  // TypeScript recommended configs
-  ...tseslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  // Node.js plugin rules
-  nPlugin.configs["recommended-module"],
-
-  // Import + Prettier plugins
+  importX.flatConfigs.recommended,
+  importX.flatConfigs.typescript,
   {
+    name: "base-js/custom-overrides",
     languageOptions: {
-      parser: tseslint.parser,
-      parserOptions: {
-        project: "./tsconfig.eslint.json",
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-    plugins: { import: importPlugin, prettier: prettierPlugin },
-    rules: {
-      /* Style */
-      indent: ["error", "tab"],
-      "linebreak-style": ["error", "unix"],
-      quotes: ["error", "double"],
-      semi: ["error", "always"],
-
-      /* Imports */
-      "import/order": [
-        "error",
-        {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            ["parent", "sibling", "index"],
-            "type",
-          ],
-          "newlines-between": "always",
-          alphabetize: { order: "asc", caseInsensitive: true },
-        },
-      ],
+      globals: globals.node, // Node.js globals (e.g.,x process, Buffer)
+      ecmaVersion: "latest",
+      sourceType: "module",
+      project: "./tsconfig.json",
+      parser: parser,
     },
     settings: {
-      "import/resolver": {
-        // The key 'typescript' tells the import plugin to use the
-        // eslint-import-resolver-typescript package.
-        typescript: {
-          // Point the resolver to your main tsconfig file.
-          project: "./tsconfig.json",
-        },
-      },
-    },
-  },
-
-  // Project-specific setup
-  {
-    languageOptions: {
-      parser: tseslint.parser,
-      parserOptions: {
-        project: "./tsconfig.json",
-        tsconfigRootDir: import.meta.dirname,
-        sourceType: "module",
-      },
-    },
-    rules: {
-      indent: ["error", "tab"],
-      "linebreak-style": ["error", "unix"],
-      quotes: ["error", "double"],
-      semi: ["error", "always"],
-
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
-      ],
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/consistent-type-imports": "error",
-
-      /* Prettier */
-      "prettier/prettier": "error",
+      "import-x/resolver-next": createTypeScriptImportResolver({
+        alwaysTryTypes: true,
+        project: "./tsconfig.json", // Enables type-aware linting
+      }),
     },
   },
 ];
+
+// TypeScript-specific config (consolidated)
+const typescript = {
+  name: "typescript-eslint/custom-overrides",
+  languageOptions: {
+    parserOptions: {
+      project: "./tsconfig.json", // Enables type-aware linting
+      projectService: true,
+      tsconfigRootDir: import.meta.dirname, // Use __dirname for CJS compatibility; switch to import.meta.dirname if fully ESM
+    },
+  },
+  rules: {
+    indent: ["error", "tab"],
+    "linebreak-style": ["error", "unix"],
+    quotes: ["error", "double"],
+    semi: ["error", "always"],
+    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn", // Warn on 'any' to encourage refactoring
+    "@typescript-eslint/consistent-type-imports": "error",
+    // Disable conflicting rules
+    "@typescript-eslint/no-var-requires": "off", // Since we're using ESM
+  },
+};
+
+// Import rules (with TypeScript resolver)
+const imports = {
+  files: ["**/*.ts"],
+  rules: {
+    "import-x/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        ts: "never",
+        tsx: "never",
+        js: "always",
+        jsx: "always",
+      },
+    ],
+
+    "import-x/order": [
+      "error",
+      {
+        groups: [
+          "builtin",
+          "external",
+          "internal",
+          ["parent", "sibling", "index"],
+          "type",
+          "object",
+        ],
+        "newlines-between": "always",
+        alphabetize: { order: "asc", caseInsensitive: true },
+      },
+    ],
+  },
+};
+
+// Main export: Combine all configs (Prettier last to override formatting)
+/** @type {import("eslint").Linter.Config[]} */
+const eslintConfig = [
+  ignore,
+  // Base
+  ...baseJs,
+
+  // TypeScript
+  ...configs.recommendedTypeChecked,
+  ...configs.stylisticTypeCheckedOnly,
+  typescript,
+
+  // Imports
+  imports,
+
+  // Prettier (last, to handle formatting without conflicts)
+  pluginPrettier,
+];
+
+export default eslintConfig;

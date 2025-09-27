@@ -1,0 +1,25 @@
+meta {
+  name: LoginStudent
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}user/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email":"student.2@gmail.com",
+    "password":"pwd123",
+    "role":"student"
+  }
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.data) {
+    bru.setVar('token', res.body.data.records.token);
+  }
+}

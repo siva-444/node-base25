@@ -12,5 +12,4 @@ app.listen(PORT, () => {
     PORT,
     "\x1b[0m",
   );
-
 });

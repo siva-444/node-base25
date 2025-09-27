@@ -1,0 +1,17 @@
+meta {
+  name: CreateDepartment
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{url}}{{module}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name":"M.Sc(Mathematics)"
+  }
+}

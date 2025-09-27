@@ -1,0 +1,21 @@
+meta {
+  name: CreateTeacher
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{url}}{{module}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name":"Teacher 12",
+    "email":"Teacher.12@gmail.com",
+    "password":"pwd123",
+    "department_id":1,
+    "phone":"9514001835"
+  }
+}

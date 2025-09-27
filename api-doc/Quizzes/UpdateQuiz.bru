@@ -1,0 +1,109 @@
+meta {
+  name: UpdateQuiz
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{url}}{{module}}/3
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Java Basics Quiz -Renamed",
+    "description": "A beginner-friendly quiz covering fundamental Java concepts like variables, data types, operators, and control structures.",
+    "duration_minutes": 20,
+    "questions": [
+      {
+        "question_text": "Which of the following is not a primitive data type in Java?",
+        "options": [
+          {
+            "option_text": "int",
+            "is_correct": false
+          },
+          {
+            "option_text": "float",
+            "is_correct": false
+          },
+          {
+            "option_text": "String",
+            "is_correct": true
+          },
+          {
+            "option_text": "boolean",
+            "is_correct": false
+          }
+        ],
+        "explanation": "String is a class in Java, not a primitive data type."
+      },
+      {
+        "question_text": "What is the default value of an uninitialized boolean variable in Java?",
+        "options": [
+          {
+            "option_text": "true",
+            "is_correct": false
+          },
+          {
+            "option_text": "false",
+            "is_correct": true
+          },
+          {
+            "option_text": "null",
+            "is_correct": false
+          },
+          {
+            "option_text": "0",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Boolean variables default to false if not explicitly initialized."
+      },
+      {
+        "question_text": "Which keyword is used to inherit a class in Java?",
+        "options": [
+          {
+            "option_text": "this",
+            "is_correct": false
+          },
+          {
+            "option_text": "super",
+            "is_correct": false
+          },
+          {
+            "option_text": "extends",
+            "is_correct": true
+          },
+          {
+            "option_text": "implements",
+            "is_correct": false
+          }
+        ],
+        "explanation": "The 'extends' keyword is used for class inheritance."
+      },
+      {
+        "question_text": "Which of the following is used to handle exceptions in Java?",
+        "options": [
+          {
+            "option_text": "try-catch",
+            "is_correct": true
+          },
+          {
+            "option_text": "if-else",
+            "is_correct": false
+          },
+          {
+            "option_text": "switch-case",
+            "is_correct": false
+          },
+          {
+            "option_text": "for loop",
+            "is_correct": false
+          }
+        ],
+        "explanation": "try-catch blocks are used to handle exceptions in Java."
+      }
+    ]
+  }
+}

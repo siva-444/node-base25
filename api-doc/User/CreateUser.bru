@@ -1,0 +1,20 @@
+meta {
+  name: CreateUser
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{url}}{{module}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name":"Siva 12345",
+    "email":"siva.12345@gmail.com",
+    "password":"pwd123",
+    "role":"admin"
+  }
+}

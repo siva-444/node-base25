@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME } = process.env;
+const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT } = process.env;
 
 async function runMigration(file) {
   const filePath = path.resolve("db/migrations", file);
@@ -15,6 +15,7 @@ async function runMigration(file) {
     host: DB_HOST,
     user: DB_USER,
     password: DB_PASSWORD,
+    port: Number(DB_PORT) || 3306,
     multipleStatements: true, // allow multiple queries
   });
 

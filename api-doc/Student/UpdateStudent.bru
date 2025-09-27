@@ -1,0 +1,21 @@
+meta {
+  name: UpdateStudent
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{url}}{{module}}/7
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name":"Student 2",
+    "email":"Student.2@gmail.com",
+    "roll_number":"16BAC02",
+    "department_id":1,
+    "batch_year":2016
+  }
+}

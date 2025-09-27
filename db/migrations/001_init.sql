@@ -6,6 +6,11 @@
 CREATE DATABASE IF NOT EXISTS quiz_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE quiz_app;
 
+CREATE TABLE IF NOT EXISTS departments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL  -- e.g., "BCA", "IT", "CS"
+);
+
 -- ========================
 -- USERS (Admin, Teacher, Student)
 -- ========================
@@ -18,6 +23,31 @@ CREATE TABLE IF NOT EXISTS users (
     login_start DATETIME NULL,   -- for students (when login allowed)
     login_end DATETIME NULL,     -- for students (when login expires)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================
+-- TEACHER INFO (1:1 with users, extra fields)
+-- ========================
+CREATE TABLE IF NOT EXISTS teacher_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL, -- FK to users(id)
+    department_id INT NOT NULL, -- FK to departments(id)
+    phone VARCHAR(20),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (department_id) REFERENCES departments(id)
+);
+
+-- ========================
+-- STUDENT INFO (1:1 with users, extra fields)
+-- ========================
+CREATE TABLE IF NOT EXISTS student_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,          -- FK to users(id)
+    department_id INT NOT NULL,    -- FK to departments(id)
+    roll_number VARCHAR(50) UNIQUE,
+    batch_year INT,                -- e.g., 2016
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (department_id) REFERENCES departments(id)
 );
 
 -- ========================
@@ -60,23 +90,16 @@ CREATE TABLE IF NOT EXISTS options (
 -- ========================
 CREATE TABLE IF NOT EXISTS quiz_assignments (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    created_by INT NOT NULL,
     quiz_id INT NOT NULL,
-    student_id INT NOT NULL,
+    student_id INT NULL,        -- optional (for single student)
+    department_id INT NULL,     -- optional (for entire department)
+    batch_year INT NULL,        -- optional (for specific batch)
     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id),
     FOREIGN KEY (quiz_id) REFERENCES quizzes(id),
-    FOREIGN KEY (student_id) REFERENCES users(id)
-);
-
--- ========================
--- QUIZ ATTEMPTS (when student takes quiz)
--- ========================
-CREATE TABLE IF NOT EXISTS quiz_attempts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    assignment_id INT NOT NULL,
-    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ended_at TIMESTAMP NULL,
-    score INT DEFAULT 0,
-    FOREIGN KEY (assignment_id) REFERENCES quiz_assignments(id)
+    FOREIGN KEY (student_id) REFERENCES users(id),
+    FOREIGN KEY (department_id) REFERENCES departments(id)
 );
 
 -- ========================
@@ -84,12 +107,14 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
 -- ========================
 CREATE TABLE IF NOT EXISTS student_answers (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    attempt_id INT NOT NULL,
+    student_id INT NOT NULL,
+    quiz_id INT NOT NULL,
     question_id INT NOT NULL,
     option_id INT NOT NULL,
     is_correct BOOLEAN,
     answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (attempt_id) REFERENCES quiz_attempts(id),
+    FOREIGN KEY (student_id) REFERENCES users(id),
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id),
     FOREIGN KEY (question_id) REFERENCES questions(id),
     FOREIGN KEY (option_id) REFERENCES options(id)
 );
@@ -102,13 +127,7 @@ CREATE INDEX idx_quizzes_teacher ON quizzes(teacher_id);
 CREATE INDEX idx_questions_quiz ON questions(quiz_id);
 CREATE INDEX idx_options_question ON options(question_id);
 CREATE INDEX idx_assignments_quiz_student ON quiz_assignments(quiz_id, student_id);
-CREATE INDEX idx_attempts_assignment ON quiz_attempts(assignment_id);
-CREATE INDEX idx_answers_attempt ON student_answers(attempt_id);
-
--- ========================
--- SEED DATA (optional for testing)
--- ========================
-INSERT INTO users (name, email, password, role) VALUES
-('Admin', 'admin@example.com', 'admin123', 'admin'),
-('Teacher A', 'teacher@example.com', 'teacher123', 'teacher'),
-('Student A', 'student@example.com', 'student123', 'student');
+CREATE INDEX idx_answers_student ON student_answers(student_id);
+CREATE INDEX idx_answers_quiz ON student_answers(quiz_id);
+CREATE INDEX idx_answers_question ON student_answers(question_id);
+CREATE INDEX idx_answers_option ON student_answers(option_id);
