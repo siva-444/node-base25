@@ -340,3 +340,69 @@ export const unassignQuiz = async (quizId: number, studentId: number) => {
     [quizId, studentId],
   );
 };
+
+// ---------------- GET QUIZ RESULTS ----------------
+export const getQuizResults = async (payload: {
+  department_id: number | string | null;
+  quiz_id: number | string | null;
+  teacher_id: number | string | null;
+}) => {
+  console.log({ payload }); // Debug log
+  const [rows] = await pool.query(
+    `SELECT
+      MIN(
+        (
+        SELECT qa.id
+        FROM quiz_assignments qa
+        WHERE qa.quiz_id = q.id
+          AND (
+            qa.student_id = s.id
+            OR (qa.department_id IS NOT NULL AND qa.department_id = si.department_id)
+            OR (qa.batch_year IS NOT NULL AND qa.batch_year = si.batch_year)
+          )
+        ORDER BY qa.id
+        LIMIT 1
+        )
+      ) AS assignment_id,
+
+      q.id AS quiz_id,
+      q.title AS quiz_title,
+
+      t.id AS teacher_id,
+      t.name AS teacher_name,
+      td.name AS teacher_department,
+
+      s.id AS student_id,
+      s.name AS student_name,
+      sd.name AS student_department,
+
+      SUM(sa.is_correct = TRUE) AS correct_count,
+      COUNT(DISTINCT sa.question_id) AS total_questions,
+      MAX(sa.answered_at) AS last_answered_at
+
+    FROM student_answers sa
+    JOIN quizzes q ON q.id = sa.quiz_id
+    JOIN users s ON s.id = sa.student_id
+    LEFT JOIN student_info si ON si.user_id = s.id
+    LEFT JOIN departments sd ON sd.id = si.department_id
+
+    JOIN users t ON t.id = q.teacher_id
+    LEFT JOIN teacher_info ti ON ti.user_id = t.id
+    LEFT JOIN departments td ON td.id = ti.department_id
+
+    WHERE 1 = 1
+      -- optional filters (use NULL to mean 'no filter' or replace with your parameter logic)
+      AND (:department_id IS NULL OR sd.id = :department_id)
+      AND (:quiz_id IS NULL OR q.id = :quiz_id)
+      AND (:teacher_id IS NULL OR t.id = :teacher_id)
+
+    GROUP BY
+      q.id, q.title,
+      t.id, t.name, td.name,
+      s.id, s.name, sd.name
+
+    ORDER BY last_answered_at DESC`,
+    payload,
+  );
+  return rows;
+};

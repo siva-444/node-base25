@@ -16,6 +16,8 @@ import Quizzes from "@pages/Modules/Quizzes";
 import CreateQuiz from "@pages/Modules/CreateQuiz";
 import AssignQuiz from "@pages/Modules/AssignQuiz";
 import Students from "@pages/Modules/Students";
+import Results from "@pages/Modules/Results";
+import QuizResultDetail from "@pages/Admin/QuizResultDetail";
 
 import Teachers from "@pages/Admin/Teachers";
 import Users from "@pages/Admin/Users";
@@ -97,6 +99,8 @@ const router = createBrowserRouter([
       { path: "quizzes/add", element: <CreateQuiz /> },
       { path: "quizzes/:id/edit", element: <CreateQuiz /> },
       { path: "quizzes/:id/assign", element: <AssignQuiz /> },
+      { path: "results", element: <Results /> },
+      { path: "quizzes/:id/results/:studentId", element: <QuizResultDetail /> },
     ],
   },
 
@@ -114,6 +118,8 @@ const router = createBrowserRouter([
       { path: "quizzes/add", element: <CreateQuiz /> },
       { path: "quizzes/:id/edit", element: <CreateQuiz /> },
       { path: "quizzes/:id/assign", element: <AssignQuiz /> },
+      { path: "quizzes/:id/results/:studentId", element: <QuizResultDetail /> },
+      { path: "results", element: <Results /> },
     ],
   },
 
@@ -129,6 +135,7 @@ const router = createBrowserRouter([
       { path: "quizzes", element: <QuizSelection /> },
       { path: "quizzes/:quizId/progress", element: <QuizScreen /> },
       { path: "quizzes/:quizId/result", element: <QuizResult /> },
+      { path: "quizzes/:id/result/:studentId", element: <QuizResultDetail /> },
     ],
   },
 ]);

@@ -16,10 +16,12 @@ import {
 import { REPO } from "@services/index";
 import type { QuizDetail } from "@services/repositories/api";
 import { shuffleQuizDetails } from "@utils/helpers";
+import { useAppSelector } from "@app/store/hooks";
 
 export default function QuizScreen() {
   const { quizId } = useParams();
   const navigate = useNavigate();
+  const auth = useAppSelector((state) => state.auth);
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -44,18 +46,14 @@ export default function QuizScreen() {
   }, [timeLeft]);
 
   const fetchQuizDetails = async (quizId: string) => {
-    try {
-      const response = await REPO.API.getQuizDetails(Number(quizId));
-      const { data, status } = response.getResponse();
-      if (status === 200 && data?.records) {
-        const shuffledQuiz = shuffleQuizDetails(data.records);
-        setQuiz(shuffledQuiz);
-        setTimeLeft((shuffledQuiz.duration_minutes || 10) * 60); // fallback 10 min
-      } else {
-        setError("Unable to load quiz details. Please try again.");
-      }
-    } catch (err) {
-      setError("Something went wrong while fetching quiz.");
+    const response = await REPO.API.getQuizDetails(Number(quizId));
+    const { data, status } = response.getResponse();
+    if (status === 200 && data?.records) {
+      const shuffledQuiz = shuffleQuizDetails(data.records);
+      setQuiz(shuffledQuiz);
+      setTimeLeft((shuffledQuiz.duration_minutes || 10) * 60); // fallback 10 min
+    } else {
+      setError("Unable to load quiz details. Please try again.");
     }
   };
 
@@ -91,9 +89,9 @@ export default function QuizScreen() {
       option_id: Number(option_id),
     }));
     const result = await REPO.API.submitQuizAnswers(quiz.id, ansObj);
-    const { status, message, data } = result.getResponse();
+    const { status, message } = result.getResponse();
     if (status === 200) {
-      navigate(-2);
+      navigate(`/student/quizzes/${quiz.id}/result/${auth.id}`);
     } else {
       setFormError(message || "Failed to submit answers. Please try again.");
     }

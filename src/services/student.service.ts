@@ -141,11 +141,11 @@ export const getStudentsQuizzes = async ({
         qa.assigned_at,
         COUNT(DISTINCT qstn.id) AS total_questions,
         MAX(sa.id IS NOT NULL) AS is_answered,
-        CAST(SUM(sa.is_correct) AS SIGNED) AS score
+        COALESCE(CAST(SUM(CASE WHEN sa.is_correct = TRUE THEN 1 ELSE 0 END) AS SIGNED), 0) AS score
     FROM quiz_assignments qa
     JOIN quizzes q ON q.id = qa.quiz_id
     JOIN questions qstn ON qstn.quiz_id = q.id
-    LEFT JOIN student_answers sa ON sa.quiz_id = q.id AND sa.student_id = :studentId
+    LEFT JOIN student_answers sa ON sa.quiz_id = q.id AND sa.question_id = qstn.id AND sa.student_id = :studentId
     WHERE 
         qa.student_id = :studentId
         OR (
@@ -214,28 +214,69 @@ export const getStudentQuizResult = async (
   const quiz = await getQuizDetailById(quizId);
   const correctOptions = await getCorrectOptionForQuiz(quizId);
 
+  // fetch any submitted answers (if any) and student info
   const [rows] = await pool.query<RowDataPacket[]>(
-    `SELECT question_id, option_id, is_correct FROM student_answers WHERE student_id = ? AND quiz_id = ?`,
+    `SELECT sa.question_id, sa.option_id, sa.is_correct, u.name as student_name, si.department_id as student_department_id, d.name as student_department
+     FROM student_answers sa
+     JOIN users u ON u.id = sa.student_id
+     LEFT JOIN student_info si ON si.user_id = u.id
+     LEFT JOIN departments d ON d.id = si.department_id
+     WHERE sa.student_id = ? AND sa.quiz_id = ?`,
     [studentId, quizId],
   );
-  if (!rows || rows.length === 0)
-    throw new ErrorClasses.NotFoundError(
-      "No answers found for this quiz",
-      `studentId: ${studentId}, quizId: ${quizId}`,
-    );
-  let score = 0;
-  rows.forEach((row) => {
-    if (row.is_correct) score += 1;
-  });
 
-  return {
-    quiz,
-    correct_answers: score,
-    answers: rows.map((row) => ({
+  // compute score
+  let score = 0;
+  const answers = (rows || []).map((row) => {
+    if (row.is_correct) score += 1;
+    return {
       question_id: row.question_id,
       selected_option_id: row.option_id,
       correct_option_id: correctOptions[row.question_id],
-      is_correct: row.is_correct,
-    })),
+      is_correct: !!row.is_correct,
+    };
+  });
+
+  // fetch student basic info (if no answers rows present above)
+  let studentInfo: {
+    id: number;
+    name?: string;
+    department_id?: number | null;
+    department?: string | null;
+  } = { id: studentId };
+  if (!rows || rows.length === 0) {
+    const [studentRows] = await pool.query<RowDataPacket[]>(
+      `SELECT u.id, u.name, si.department_id, d.name as department
+       FROM users u
+       LEFT JOIN student_info si ON si.user_id = u.id
+       LEFT JOIN departments d ON d.id = si.department_id
+       WHERE u.id = ?`,
+      [studentId],
+    );
+    if (studentRows && studentRows.length > 0) {
+      const s = studentRows[0];
+      studentInfo = {
+        id: s.id,
+        name: s.name,
+        department_id: s.department_id,
+        department: s.department,
+      };
+    }
+  } else {
+    const r = rows[0];
+    studentInfo = {
+      id: studentId,
+      name: r.student_name,
+      department_id: r.student_department_id,
+      department: r.student_department,
+    };
+  }
+
+  return {
+    quiz,
+    student: studentInfo,
+    score,
+    total_questions: (quiz.questions || []).length,
+    answers,
   };
 };

@@ -79,3 +79,29 @@ export const assignQuiz = (id: number, data: AssignQuizRequest) => {
     data,
   });
 };
+
+export type QuizResultResponse = {
+  assignment_id?: number;
+  quiz_id: number;
+  quiz_title: string;
+  teacher_id?: number;
+  teacher_name?: string;
+  teacher_department?: string;
+  student_id: number;
+  student_name: string;
+  student_department?: string;
+  correct_count: number;
+  total_questions: number;
+  last_answered_at: string;
+};
+export type QuizResultRequest = {
+  department_id: number | null;
+  quiz_id: number | null;
+  teacher_id: number | null;
+};
+export const getQuizResult = (data: QuizResultRequest) => {
+  return get<QuizResultResponse[]>({
+    url: `/quiz/results`,
+    params: data,
+  });
+};

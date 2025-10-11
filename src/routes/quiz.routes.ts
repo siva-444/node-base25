@@ -8,6 +8,7 @@ import {
   updateQuiz,
   deleteQuiz,
   unassignQuiz,
+  getQuizResults,
 } from "@controllers/quiz.controller.js";
 import { authenticate, authorize } from "@middlewares/auth.middleware.js";
 
@@ -16,6 +17,12 @@ const router = Router();
 // Quiz (Teacher/Admin)
 router.get("/", getAllQuizzes);
 router.post("/", createQuiz);
+router.get(
+  "/results",
+  authenticate,
+  authorize(["admin", "teacher", "student"]),
+  getQuizResults,
+);
 router.get("/:id", getQuizById);
 router.post(
   "/:id/assign",

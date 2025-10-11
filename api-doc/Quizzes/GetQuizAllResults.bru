@@ -1,0 +1,15 @@
+meta {
+  name: GetQuizAllResults
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{url}}{{module}}/results?quiz_id=2
+  body: none
+  auth: inherit
+}
+
+params:query {
+  quiz_id: 2
+}

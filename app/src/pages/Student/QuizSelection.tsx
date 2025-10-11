@@ -3,9 +3,11 @@ import { Card, CardContent, Typography, Button, Grid, Box } from "@mui/joy";
 import { useNavigate } from "react-router-dom";
 import { REPO } from "@services/index";
 import { useEffect, useState } from "react";
+import { useAppSelector } from "@app/store/hooks";
 
 export default function QuizSelection() {
   const navigate = useNavigate();
+  const auth = useAppSelector((state) => state.auth);
   const [assignedQuizzes, setAssignedQuizzes] = useState<
     REPO.API.QuizAssignment[]
   >([]);
@@ -45,31 +47,34 @@ export default function QuizSelection() {
                 <Typography level="body-xs" mb={2} color="neutral">
                   Duration: {quiz.duration_minutes} mins
                 </Typography>
-                <Typography
-                  level="body-lg"
-                  mb={2}
-                  color={
-                    quiz.score / quiz.total_questions > 50
-                      ? "success"
-                      : "danger"
-                  }
-                >
-                  {quiz.score}/{quiz.total_questions} correct
-                </Typography>
+                {quiz.is_answered && (
+                  <Typography
+                    level="body-lg"
+                    mb={2}
+                    color={
+                      quiz.score / quiz.total_questions < 30
+                        ? "danger"
+                        : quiz.score / quiz.total_questions < 70
+                          ? "warning"
+                          : "success"
+                    }
+                  >
+                    {quiz.score}/{quiz.total_questions} correct
+                  </Typography>
+                )}
               </Box>
               <Button
-                disabled={quiz.is_answered}
+                // disabled={quiz.is_answered}
                 variant="solid"
                 color="primary"
                 fullWidth
                 onClick={() => {
-                  // if (quiz.is_answered)
-                  //   navigate(`${quiz.quiz_id}/result/${quiz.answer_id}`);
-                  // else
-                  navigate(`/student/quizzes/${quiz.quiz_id}/progress`);
+                  if (quiz.is_answered)
+                    navigate(`${quiz.quiz_id}/result/${auth.id}`);
+                  else navigate(`/student/quizzes/${quiz.quiz_id}/progress`);
                 }}
               >
-                Start Quiz
+                {quiz.is_answered ? "View Result" : "Start Quiz"}
               </Button>
             </CardContent>
           </Card>

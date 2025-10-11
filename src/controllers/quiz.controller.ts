@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import * as QuizService from "@services/quiz.service.js";
+import * as StudentService from "@services/student.service.js";
 
 export const createQuiz = async (
   req: Request,
@@ -118,6 +119,29 @@ export const unassignQuiz = async (
     const { studentId } = req.body;
     await QuizService.unassignQuiz(quizId, studentId);
     res.sendSuccessResponse("Quiz unassigned");
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getQuizResults = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log(req.params);
+    const {
+      department_id = null,
+      quiz_id = null,
+      teacher_id = null,
+    } = req.query;
+    const result = await QuizService.getQuizResults({
+      department_id: Number(department_id) || null,
+      quiz_id: Number(quiz_id) || null,
+      teacher_id: Number(teacher_id) || null,
+    });
+    res.sendSuccessResponse("Quiz results fetched", result);
   } catch (err) {
     next(err);
   }

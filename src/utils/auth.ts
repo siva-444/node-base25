@@ -2,7 +2,7 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import * as argon from "argon2";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret"; // keep in .env
-const JWT_EXPIRES_IN = "1h"; // 1 hour tokens
+const JWT_EXPIRES_IN = "12h"; // 1 hour tokens
 
 // Generate JWT
 export const generateToken = (jwtPayload: JwtPayload) => {

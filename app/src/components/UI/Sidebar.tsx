@@ -15,11 +15,13 @@ export default function Sidebar({ role }: SidebarProps) {
       { path: "/admin/teachers", label: "Teachers" },
       { path: "/admin/students", label: "Students" },
       { path: "/admin/quizzes", label: "Quizzes" },
+      { path: "/admin/results", label: "Student Results" },
     ];
   } else if (role === "teacher") {
     links = [
       { path: "/teacher/students", label: "Students" },
       { path: "/teacher/quizzes", label: "Quizzes" },
+      { path: "/teacher/results", label: "Student Results" },
     ];
   } else if (role === "student") {
     links = [

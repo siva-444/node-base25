@@ -9,12 +9,15 @@ import {
   getQuizDetailById,
   submitStudentQuiz,
   getStudentQuizResult,
+  getQuizResultDetail,
 } from "@controllers/student.controller.js";
 const router = Router();
 
 router.post("/", createStudent);
 router.put("/:id", updateStudent);
 router.delete("/:id", deleteStudent);
+
+router.get("/:studentId/quiz/:quizId/result", getQuizResultDetail);
 
 //Student quiz routes
 router.get("/quizzes", getStudentsQuizzes);

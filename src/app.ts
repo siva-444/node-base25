@@ -1,5 +1,5 @@
 import express from "express";
-import loadApplication from "@config/db.js";
+import loadApplication from "@config/loader.js";
 import responseHandler from "@helpers/response-handler.js";
 import requestHandler from "@helpers/error/handler.js";
 import * as ErrorClasses from "@helpers/error/classes.js";

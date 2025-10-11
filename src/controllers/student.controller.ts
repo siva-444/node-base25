@@ -167,3 +167,18 @@ export const getStudentQuizResult = async (
     next(err);
   }
 };
+
+export const getQuizResultDetail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const quizId = Number(req.params.quizId);
+    const studentId = Number(req.params.studentId);
+    const result = await StudentService.getStudentQuizResult(studentId, quizId);
+    res.sendSuccessResponse("success", result);
+  } catch (err) {
+    next(err);
+  }
+};

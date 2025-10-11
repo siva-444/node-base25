@@ -16,24 +16,16 @@ import {
 } from "@mui/joy";
 import { useForm, Controller } from "react-hook-form";
 import { REPO, CONSTANTS } from "@services/index";
-type Teacher = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  department_id: number;
-  department: string;
-  phone: string;
-};
-type Department = {
-  id: number;
-  name: string;
-};
+
 export default function TeachersPage() {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [teachers, setTeachers] = useState<REPO.API.TeacherModel[]>([]);
+  const [departments, setDepartments] = useState<REPO.API.DepartmentModel[]>(
+    [],
+  );
   const [open, setOpen] = useState(false);
-  const [editTeacher, setEditTeacher] = useState<Teacher | null>(null);
+  const [editTeacher, setEditTeacher] = useState<REPO.API.TeacherModel | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +36,9 @@ export default function TeachersPage() {
     control,
     setError: setFormError,
     formState: { errors, isSubmitting },
-  } = useForm<Omit<Teacher, "id" | "department"> & { password?: string }>({
+  } = useForm<
+    Omit<REPO.API.TeacherModel, "id" | "department"> & { password?: string }
+  >({
     defaultValues: {
       name: "",
       email: "",
@@ -96,7 +90,7 @@ export default function TeachersPage() {
     });
     setOpen(true);
   };
-  const handleEdit = (teacher: Teacher) => {
+  const handleEdit = (teacher: REPO.API.TeacherModel) => {
     setEditTeacher(teacher);
     reset({ ...teacher, department_id: teacher.department_id });
     setOpen(true);

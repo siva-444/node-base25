@@ -120,3 +120,53 @@ export const submitQuizAnswers = (
     data: { answers },
   });
 };
+
+export interface Answer {
+  question_id: number;
+  selected_option_id: number;
+  correct_option_id: number;
+  is_correct: boolean;
+}
+
+export interface Quiz {
+  id: number;
+  teacher_id: number;
+  title: string;
+  description: string;
+  duration_minutes: number;
+  created_at: Date;
+  teacher_name: string;
+  teacher_email: string;
+  questions: Question[];
+}
+
+export interface Question {
+  id: number;
+  question_text: string;
+  explanation: string;
+  options: Option[];
+}
+
+export interface Option {
+  id: number;
+  option_text: string;
+}
+
+export interface Student {
+  id: number;
+  name: string;
+  department_id: number;
+  department: string;
+}
+export type QuizDetailedResult = {
+  quiz: Quiz;
+  student: Student;
+  score: number;
+  total_questions: number;
+  answers: Answer[];
+};
+export const getQuizResultDetail = (quizId: number, studentId: number) => {
+  return get<QuizDetailedResult>({
+    url: `/student/${studentId}/quiz/${quizId}/result/`,
+  });
+};
